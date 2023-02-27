@@ -1,6 +1,6 @@
 import os
 from app import app, db, login_manager
-from flask import render_template, request, redirect, url_for, flash, session, abort
+from flask import render_template, request, redirect, url_for, flash, session, abort, send_from_directory
 from flask_login import login_user, logout_user, current_user, login_required
 from werkzeug.utils import secure_filename
 from werkzeug.security import check_password_hash
@@ -9,7 +9,7 @@ from app.forms import LoginForm, UploadForm
 
 def get_uploaded_images():
     rootdir = os.getcwd()
-    return [os.path.join(subdir, file) for subdir, dirs, files in os.walk(rootdir + '/uploads') for file in files]
+    return [file for subdir, dirs, files in os.walk(os.path.join(rootdir, app.config['UPLOAD_FOLDER'])) for file in files if file != '.gitkeep']
 ###
 # Routing for your application.
 ###
@@ -27,8 +27,13 @@ def about():
 
 @app.route('/uploads/<filename>')
 def get_image(filename):
-    return render_template('uploads.html')
+    return send_from_directory(os.path.join(os.getcwd(),app.config['UPLOAD_FOLDER']),filename)
 
+
+@app.route('/files')
+def files():
+    srcs = get_uploaded_images()
+    return render_template('files.html',srcs=srcs)
 @app.route('/upload', methods=['POST', 'GET'])
 @login_required
 def upload():
@@ -38,8 +43,6 @@ def upload():
     if form.validate_on_submit():
         # Get file data and save to your uploads folder
         [f, token] = form
-        # print(form.data)
-        # print(f.data)
         filename = secure_filename(f.data.filename)
         f.data.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
         flash('File Saved', 'success')

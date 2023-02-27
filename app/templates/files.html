@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+{% block main %}
+<ul>
+    {% if srcs %}
+    {% for src in srcs%}
+    <li><img src="{{url_for('get_image',filename=src)}}" alt=""></li>
+    {% endfor %}
+    {% endif %}
+</ul>
+{% endblock %}
