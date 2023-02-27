@@ -37,7 +37,9 @@ def upload():
     # Validate file upload on submit
     if form.validate_on_submit():
         # Get file data and save to your uploads folder
-        [f, token] = form.data
+        [f, token] = form
+        # print(form.data)
+        # print(f.data)
         filename = secure_filename(f.data.filename)
         f.data.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
         flash('File Saved', 'success')
@@ -56,7 +58,7 @@ def login():
                 login_user(user)
                 flash("Successfully Logged In","success")
                 # Remember to flash a message to the user
-                return redirect(url_for("home"))  # The user should be redirected to the upload form instead
+                return redirect(url_for("upload"))  # The user should be redirected to the upload form instead
     return render_template("login.html", form=form)
 
 # user_loader callback. This callback is used to reload the user object from
